@@ -6,6 +6,11 @@ namespace Platformer
 {
     public class PlayerController : MonoBehaviour
     {
+
+        //sound files
+        private AudioSource coinAudioSource;
+        private AudioSource jumpAudioSource;
+
         public float movingSpeed;
         public float jumpForce;
         private float moveInput;
@@ -23,6 +28,11 @@ namespace Platformer
 
         void Start()
         {
+            //audio
+            coinAudioSource = transform.Find("CoinSound").GetComponent<AudioSource>();
+            jumpAudioSource = transform.Find("JumpSound").GetComponent<AudioSource>();
+
+
             rigidbody = GetComponent<Rigidbody2D>();
             animator = GetComponent<Animator>();
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -35,21 +45,30 @@ namespace Platformer
 
         void Update()
         {
-            if (Input.GetButton("Horizontal")) 
+            //movement
+            moveInput = Input.GetAxis("Horizontal");
+            Vector3 direction = transform.right * moveInput;
+            transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, movingSpeed * Time.deltaTime);
+
+
+            if (moveInput != 0) 
             {
-                moveInput = Input.GetAxis("Horizontal");
-                Vector3 direction = transform.right * moveInput;
-                transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, movingSpeed * Time.deltaTime);
                 animator.SetInteger("playerState", 1); // Turn on run animation
             }
             else
             {
                 if (isGrounded) animator.SetInteger("playerState", 0); // Turn on idle animation
             }
-            if(Input.GetKeyDown(KeyCode.Space) && isGrounded )
+
+            //jump 
+            if((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Joystick1Button1)) && isGrounded )
             {
+                //jump noise
+                jumpAudioSource.Play();
+
                 rigidbody.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
             }
+
             if (!isGrounded)animator.SetInteger("playerState", 2); // Turn on jump animation
 
             if(facingRight == false && moveInput > 0)
@@ -92,6 +111,9 @@ namespace Platformer
         {
             if (other.gameObject.tag == "Coin")
             {
+                //coin noise
+                coinAudioSource.Play();
+                
                 gameManager.coinsCounter += 1;
                 Destroy(other.gameObject);
             }
