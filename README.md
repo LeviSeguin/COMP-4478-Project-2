@@ -6,7 +6,9 @@ This is a simple 2D platformer where the goal is to collect all the coins in the
 # Controls
 
 A - left
+
 D - right
+
 Space - jump
 
 You can also use a joystick to move and the bottom button to jump (X on playstation, A on xbox)
